@@ -1,25 +1,44 @@
-import React from 'react';
-import logo from './logo.svg';
+import { Box } from '@mui/material';
 import './App.css';
+import CreateNote from './components/CreateNote';
+import Header from './components/Header';
+import Notes from './components/Notes';
+import { useEffect, useState } from 'react';
+import { NoteObj } from './models/note';
+
 
 function App() {
+
+  const [notes, setNotes] = useState<NoteObj[]>([])
+
+  useEffect(() => {
+    const savedNotes = sessionStorage.getItem('notes');
+    if (savedNotes) {
+      setNotes(JSON.parse(savedNotes));
+    }
+  }, []);
+
+
+  const onAddNote = (note:NoteObj) => {
+    setNotes([note, ...notes])
+    sessionStorage.setItem('notes', JSON.stringify([note, ...notes]))
+  }
+
+const deleteNote=(id:number)=>{
+    const updatedNotes = notes.filter((note) => note.id !== id);
+    setNotes(updatedNotes);
+    sessionStorage.setItem('notes', JSON.stringify(updatedNotes))
+  }
+
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+    <Header />
+    <Box style={{padding: 20}}>
+    <CreateNote onAddNote={onAddNote}/>
+    <Notes notes={notes} deleteNote={deleteNote}/>
+    </Box>
+    </>
   );
 }
 
